@@ -47,7 +47,7 @@ openApiTools = {
 console.log("[0/3]: swagger-extractor started.");
 // -------------------> Generate type file
 createFileWithJson(openApiToolsFileName, JSON.stringify(openApiTools));
-await execCommand(`openapi-generator-cli generate --generator-key ${folderName}`);
+await execCommand(`npx openapi-generator-cli generate --generator-key ${folderName}`);
 await execCommand(`rimraf --glob ${openApiToolsFileName}`);
 // copy type files
 await execCommand(`rimraf --glob ./${outputDir}axios/models/${folderName}`);
