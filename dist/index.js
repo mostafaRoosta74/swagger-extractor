@@ -2,6 +2,8 @@
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
 import { copyDirectory, createDirectory, createFileWithJson, execCommand, execCommand2, readDirectory, readFile, } from "./utils.js";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 // variables
 const argv = yargs(hideBin(process.argv)).argv;
 const url = argv.url;
@@ -15,6 +17,8 @@ if (!url) {
     throw new Error("No URL provided");
 }
 //start code
+const __filename = fileURLToPath(import.meta.url);
+const relativePath = path.relative(process.cwd(), path.dirname(__filename));
 openApiTools = {
     $schema: "./node_modules/@openapitools/openapi-generator-cli/config.schema.json",
     spaces: 2,
@@ -23,7 +27,7 @@ openApiTools = {
         generators: {
             [folderName]: {
                 inputSpec: url,
-                templateDir: "#{cwd}/openapi-template/typescript-axios/",
+                templateDir: `${relativePath}/../openapi-template/typescript-axios/`,
                 output: tempFolder,
                 generatorName: "typescript-axios",
                 skipValidateSpec: true,
@@ -47,7 +51,7 @@ openApiTools = {
 console.log("[0/3]: swagger-extractor started.");
 // -------------------> Generate type file
 createFileWithJson(openApiToolsFileName, JSON.stringify(openApiTools));
-await execCommand2(`npx openapi-generator-cli generate --generator-key ${folderName}`);
+await execCommand2(`openapi-generator-cli generate --generator-key ${folderName}`);
 await execCommand(`rimraf --glob ${openApiToolsFileName}`);
 // copy type files
 await execCommand(`rimraf --glob ./${outputDir}axios/models/${folderName}`);
@@ -56,7 +60,7 @@ await copyDirectory(`${tempFolder}/models/`, `./${outputDir}axios/models/${folde
 await execCommand(`rimraf --glob ${tempFolder}`);
 console.log("[1/3]:Type files generated successfully.");
 //--------------------> Create axios file
-await execCommand2(`npx swagger-typescript-api -p ${url} -o ./tempAxios --modular --axios --single-http-client -t openapi-template/swagger-typescript-api-template`);
+await execCommand2(`swagger-typescript-api -p ${url} -o ./tempAxios --modular --axios --single-http-client -t ${relativePath}/../openapi-template/swagger-typescript-api-template`);
 console.log("[2/3]:axios generated successfully.");
 // copy configAxios
 const httpClientData = await readFile("tempAxios/http-client.ts");
