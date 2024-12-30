@@ -25,6 +25,10 @@ export const execCommand = (command) => new Promise((resolve, reject) => {
         if (error) {
             reject(new Error(`error: ${error.message}`));
             console.log(`error: ${error.message}`);
+            console.log(`error2: ${error.cause}`);
+            console.log(`error3: ${error.name}`);
+            console.log(`error3: ${error.code}`);
+            console.log(`error4: ${error}`);
             return;
         }
         if (stderr) {

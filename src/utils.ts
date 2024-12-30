@@ -29,6 +29,7 @@ export const execCommand = (command: string) =>
         console.log(`error2: ${error.cause}`);
         console.log(`error3: ${error.name}`);
         console.log(`error3: ${error.code}`);
+        console.log(`error4: ${error}`);
         return;
       }
       if (stderr) {
