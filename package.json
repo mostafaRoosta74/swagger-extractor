@@ -1,5 +1,5 @@
 {
-  "name": "axios_extractor",
+  "name": "swagger-extractor",
   "version": "1.0.0",
   "type": "module",
   "description": "Extract axios functions and DTOs from swagger json link",

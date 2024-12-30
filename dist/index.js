@@ -44,6 +44,7 @@ openApiTools = {
         },
     },
 };
+console.log("[0/3]: swagger-extractor started.");
 // -------------------> Generate type file
 createFileWithJson(openApiToolsFileName, JSON.stringify(openApiTools));
 await execCommand(`openapi-generator-cli generate --generator-key ${folderName}`);
@@ -67,6 +68,6 @@ let mainAxiosData = (await readFile(`tempAxios/${mainAxiosFileName}`)) || "";
 mainAxiosData = mainAxiosData?.replace("./data-contracts", `./models/${folderName}`);
 mainAxiosData = mainAxiosData?.replace("./http-client", "./configAxios");
 createFileWithJson(`./${outputDir}axios/${folderName}Axios.ts`, mainAxiosData || "");
-// clean up
+//------------->clean up
 await execCommand(`rimraf --glob tempAxios`);
 console.log(`[3/3]:Files created successfully in ./${outputDir}`);
