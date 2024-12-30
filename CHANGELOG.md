@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.3](https://github.com/mostafaRoosta74/swagger-extractor/compare/v1.0.2...v1.0.3) (2024-12-30)
+
+
+### Bug Fixes
+
+* fix in project run error part 3 ([7417c85](https://github.com/mostafaRoosta74/swagger-extractor/commit/7417c85ecb26547c1d374459bcacc268864018f2))
+
 ## [1.0.2](https://github.com/mostafaRoosta74/swagger-extractor/compare/v1.0.1...v1.0.2) (2024-12-30)
 
 
