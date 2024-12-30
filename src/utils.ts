@@ -26,6 +26,9 @@ export const execCommand = (command: string) =>
       if (error) {
         reject(new Error(`error: ${error.message}`));
         console.log(`error: ${error.message}`);
+        console.log(`error2: ${error.cause}`);
+        console.log(`error3: ${error.name}`);
+        console.log(`error3: ${error.code}`);
         return;
       }
       if (stderr) {
