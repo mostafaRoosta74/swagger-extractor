@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/mostafaRoosta74/swagger-extractor/compare/v1.0.0...v1.0.1) (2024-12-30)
+
+
+### Bug Fixes
+
+* change package name and readme ([fe0d496](https://github.com/mostafaRoosta74/swagger-extractor/commit/fe0d496ab64a0af00592a4c4f476bba502c999e9))
+
 ## 1.0.0 (2024-12-30)
 
 
