@@ -66,7 +66,7 @@ console.log("[0/3]: swagger-extractor started.");
 
 // -------------------> Generate type file
 createFileWithJson(openApiToolsFileName, JSON.stringify(openApiTools));
-await execCommand(
+await execCommand2(
   `npx openapi-generator-cli generate --generator-key ${folderName}`,
 );
 await execCommand(`rimraf --glob ${openApiToolsFileName}`);
@@ -82,7 +82,7 @@ await execCommand(`rimraf --glob ${tempFolder}`);
 console.log("[1/3]:Type files generated successfully.");
 
 //--------------------> Create axios file
-await execCommand(
+await execCommand2(
   `npx swagger-typescript-api -p ${url} -o ./tempAxios --modular --axios --single-http-client -t openapi-template/swagger-typescript-api-template`,
 );
 console.log("[2/3]:axios generated successfully.");

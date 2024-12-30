@@ -25,10 +25,6 @@ export const execCommand = (command) => new Promise((resolve, reject) => {
         if (error) {
             reject(new Error(`error: ${error.message}`));
             console.log(`error: ${error.message}`);
-            console.log(`error2: ${error.cause}`);
-            console.log(`error3: ${error.name}`);
-            console.log(`error3: ${error.code}`);
-            console.log(`error4: ${error}`);
             return;
         }
         if (stderr) {
@@ -41,13 +37,12 @@ export const execCommand = (command) => new Promise((resolve, reject) => {
     });
 });
 export const execCommand2 = (command) => new Promise((resolve, reject) => {
-    const [first, ...others] = command.split(" ");
-    const ls = spawn(first, others);
-    ls.stdout.on("data", (data) => {
+    const ls = spawn(command, { stdio: "inherit", shell: true });
+    ls.stdout?.on("data", (data) => {
         reject(new Error(`stdout: ${data}`));
         console.log(`stdout: ${data}`);
     });
-    ls.stderr.on("data", (data) => {
+    ls.stderr?.on("data", (data) => {
         reject(new Error(`stderr: ${data}`));
         console.log(`stderr: ${data}`);
     });

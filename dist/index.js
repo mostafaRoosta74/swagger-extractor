@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
-import { copyDirectory, createDirectory, createFileWithJson, execCommand, readDirectory, readFile, } from "./utils.js";
+import { copyDirectory, createDirectory, createFileWithJson, execCommand, execCommand2, readDirectory, readFile, } from "./utils.js";
 // variables
 const argv = yargs(hideBin(process.argv)).argv;
 const url = argv.url;
@@ -47,7 +47,7 @@ openApiTools = {
 console.log("[0/3]: swagger-extractor started.");
 // -------------------> Generate type file
 createFileWithJson(openApiToolsFileName, JSON.stringify(openApiTools));
-await execCommand(`npx openapi-generator-cli generate --generator-key ${folderName}`);
+await execCommand2(`npx openapi-generator-cli generate --generator-key ${folderName}`);
 await execCommand(`rimraf --glob ${openApiToolsFileName}`);
 // copy type files
 await execCommand(`rimraf --glob ./${outputDir}axios/models/${folderName}`);
@@ -56,7 +56,7 @@ await copyDirectory(`${tempFolder}/models/`, `./${outputDir}axios/models/${folde
 await execCommand(`rimraf --glob ${tempFolder}`);
 console.log("[1/3]:Type files generated successfully.");
 //--------------------> Create axios file
-await execCommand(`npx swagger-typescript-api -p ${url} -o ./tempAxios --modular --axios --single-http-client -t openapi-template/swagger-typescript-api-template`);
+await execCommand2(`npx swagger-typescript-api -p ${url} -o ./tempAxios --modular --axios --single-http-client -t openapi-template/swagger-typescript-api-template`);
 console.log("[2/3]:axios generated successfully.");
 // copy configAxios
 const httpClientData = await readFile("tempAxios/http-client.ts");
