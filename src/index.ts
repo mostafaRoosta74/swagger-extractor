@@ -2,6 +2,8 @@
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
 import {
+  copyDirectory,
+  createDirectory,
   createFileWithJson,
   execCommand,
   execCommand2,
@@ -13,10 +15,12 @@ import {
 const argv = yargs(hideBin(process.argv)).argv as {
   url?: string;
   name?: string;
+  output?: string;
 };
 
 const url = argv.url;
-const folderName = argv["name"] || "OutputModel";
+const folderName = argv["name"] || "output";
+const outputDir = argv["output"] ? `${argv["output"]}/` : "";
 let openApiTools: object = {};
 const openApiToolsFileName = "openapitools.json";
 const tempFolder = "tempFolder";
@@ -66,19 +70,22 @@ await execCommand(
 await execCommand(`rimraf --glob ${openApiToolsFileName}`);
 
 // copy type files
-await execCommand(`rimraf --glob axios/models/${folderName}`);
-await execCommand2(`mkdir -p ./axios/models/${folderName}`);
-await execCommand2(`cp -r ${tempFolder}/models/* axios/models/${folderName}`);
+await execCommand(`rimraf --glob ./${outputDir}axios/models/${folderName}`);
+await createDirectory(`./${outputDir}axios/models/${folderName}`);
+await copyDirectory(
+  `${tempFolder}/models/`,
+  `./${outputDir}axios/models/${folderName}`,
+);
 await execCommand(`rimraf --glob ${tempFolder}`);
-
+console.log("[1/3]:Type files generated successfully.");
 //--------------------> Create axios file
 await execCommand(
   `npx swagger-typescript-api -p ${url} -o ./tempAxios --modular --axios --single-http-client -t openapi-template/swagger-typescript-api-template`,
 );
-
+console.log("[2/3]:axios generated successfully.");
 // copy configAxios
 const httpClientData = await readFile("tempAxios/http-client.ts");
-createFileWithJson(`./axios/configAxios.ts`, httpClientData || "");
+createFileWithJson(`./${outputDir}axios/configAxios.ts`, httpClientData || "");
 
 // copy mainAxios
 const tempAxiosDirectoryArray = await readDirectory("tempAxios");
@@ -91,7 +98,12 @@ mainAxiosData = mainAxiosData?.replace(
   `./models/${folderName}`,
 );
 mainAxiosData = mainAxiosData?.replace("./http-client", "./configAxios");
-createFileWithJson(`./axios/${folderName}Axios.ts`, mainAxiosData || "");
+createFileWithJson(
+  `./${outputDir}axios/${folderName}Axios.ts`,
+  mainAxiosData || "",
+);
 
 // clean up
 await execCommand(`rimraf --glob tempAxios`);
+
+console.log(`[3/3]:Files created successfully in ./${outputDir}`);

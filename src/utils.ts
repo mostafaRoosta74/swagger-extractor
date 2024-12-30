@@ -8,13 +8,13 @@ export const createFileWithJson = (fileName: string, text: string) => {
       // File does not exist, create it
       fs.writeFile(fileName, text, (err) => {
         if (err) throw err;
-        console.log("File created successfully!");
+        //console.log("File created successfully!");
       });
     } else {
       // File exists, edit it
       fs.writeFile(fileName, text, (err) => {
         if (err) throw err;
-        console.log("File content updated successfully!");
+        //console.log("File content updated successfully!");
       });
     }
   });
@@ -60,7 +60,7 @@ export const execCommand2 = (command: string) =>
 
     ls.on("close", (code) => {
       resolve("");
-      console.log(`child process exited with code ${code}`);
+      //console.log(`child process exited with code ${code}`);
     });
   });
 
@@ -91,5 +91,28 @@ export const readDirectory = (directoryPathName: string) =>
         return console.log("Unable to scan directory: " + err);
       }
       resolve(files);
+    });
+  });
+
+export const createDirectory = (path: string) =>
+  new Promise((resolve, reject) => {
+    fs.mkdir(path, { recursive: true }, (err) => {
+      if (err) {
+        reject(new Error(`mkdir failed: ${err}`));
+        return console.error(err);
+      }
+      //console.log("Directory created successfully!");
+      resolve("");
+    });
+  });
+
+export const copyDirectory = (source: string, destination: string) =>
+  new Promise((resolve, reject) => {
+    fs.cp(source, destination, { recursive: true }, (err) => {
+      if (err) {
+        reject(new Error(`copyDirectory failed: ${err}`));
+        return;
+      }
+      resolve("");
     });
   });
