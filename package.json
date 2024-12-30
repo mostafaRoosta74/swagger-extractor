@@ -1,0 +1,33 @@
+{
+  "name": "axios_extractor",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Extract axios functions and DTOs from swagger json link",
+  "scripts": {
+    "create-dist": "npx tsc --watch",
+    "test": "npx . --url=\"https://petstore.swagger.io/v2/swagger.json\" --name=\"pet\""
+  },
+  "keywords": [
+    "axios",
+    "swigger",
+    "axios",
+    "extractor"
+  ],
+  "dependencies": {
+    "@openapitools/openapi-generator-cli": "^2.7.0",
+    "rimraf": "^6.0.1",
+    "swagger-typescript-api": "^13.0.23",
+    "typescript": "^5.7.2",
+    "yargs": "^17.7.2"
+  },
+  "author": "mostafa roosta",
+  "license": "MIT",
+  "bin": "./dist/index.js",
+  "devDependencies": {
+    "@tsconfig/node20": "^20.1.4",
+    "@types/node": "^22.10.2",
+    "@types/yargs": "^17.0.33",
+    "prettier": "3.4.2",
+    "tsx": "^4.19.2"
+  }
+}
