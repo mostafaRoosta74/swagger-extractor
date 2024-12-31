@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.6](https://github.com/mostafaRoosta74/swagger-extractor/compare/v1.0.5...v1.0.6) (2024-12-31)
+
+
+### Bug Fixes
+
+* cleanup file on ctrl+c or crash ([1933806](https://github.com/mostafaRoosta74/swagger-extractor/commit/193380680ef612ea05e4ac81b4f085d261405b85))
+
 ## [1.0.5](https://github.com/mostafaRoosta74/swagger-extractor/compare/v1.0.4...v1.0.5) (2024-12-30)
 
 
