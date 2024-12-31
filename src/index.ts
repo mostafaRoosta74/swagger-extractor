@@ -2,6 +2,7 @@
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
 import {
+  cleanUpFiles,
   copyDirectory,
   createDirectory,
   createFileWithJson,
@@ -18,16 +19,22 @@ const argv = yargs(hideBin(process.argv)).argv as {
   url?: string;
   name?: string;
   output?: string;
+  withReactQuery?: boolean;
 };
-
+let totalStep = 3;
 const url = argv.url;
 const folderName = argv["name"] || "output";
 const outputDir = argv["output"] ? `${argv["output"]}/` : "";
+// const withQueryClient = !!argv["withReactQuery"];
+// totalStep = withQueryClient ? totalStep + 1 : totalStep;
 let openApiTools: object = {};
 const openApiToolsFileName = "openapitools.json";
 const tempFolder = "tempFolder";
 
 // crash with error
+process.on("SIGINT", async () => {
+  await cleanUpFiles();
+});
 if (!url) {
   throw new Error("No URL provided");
 }
@@ -67,7 +74,7 @@ openApiTools = {
   },
 };
 
-console.log("[0/3]: swagger-extractor started.");
+console.log(`[0/${totalStep}]: swagger-extractor started.`);
 
 // -------------------> Generate type file
 createFileWithJson(openApiToolsFileName, JSON.stringify(openApiTools));
@@ -84,13 +91,13 @@ await copyDirectory(
   `./${outputDir}axios/models/${folderName}`,
 );
 await execCommand(`rimraf --glob ${tempFolder}`);
-console.log("[1/3]:Type files generated successfully.");
+console.log(`[1/${totalStep}]:Type files generated successfully.`);
 
 //--------------------> Create axios file
 await execCommand2(
   `swagger-typescript-api -p ${url} -o ./tempAxios --modular --axios --single-http-client -t ${relativePath}/../openapi-template/swagger-typescript-api-template`,
 );
-console.log("[2/3]:axios generated successfully.");
+console.log(`[2/${totalStep}]:axios generated successfully.`);
 // copy configAxios
 const httpClientData = await readFile("tempAxios/http-client.ts");
 createFileWithJson(`./${outputDir}axios/configAxios.ts`, httpClientData || "");
@@ -113,5 +120,11 @@ createFileWithJson(
 
 //------------->clean up
 await execCommand(`rimraf --glob tempAxios`);
+console.log(`[3/${totalStep}]:Files created successfully in ./${outputDir}`);
 
-console.log(`[3/3]:Files created successfully in ./${outputDir}`);
+//
+// if (withQueryClient) {
+//   console.log(
+//     `[4/${totalStep}]:React query files created successfully in ./${outputDir}`,
+//   );
+// }
