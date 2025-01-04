@@ -25,8 +25,8 @@ let totalStep = 3;
 const url = argv.url;
 const folderName = argv["name"] || "output";
 const outputDir = argv["output"] ? `${argv["output"]}/` : "";
-// const withQueryClient = !!argv["withReactQuery"];
-// totalStep = withQueryClient ? totalStep + 1 : totalStep;
+const withQueryClient = !!argv["withReactQuery"];
+totalStep = withQueryClient ? totalStep + 1 : totalStep;
 let openApiTools: object = {};
 const openApiToolsFileName = "openapitools.json";
 const tempFolder = "tempFolder";
@@ -122,9 +122,12 @@ createFileWithJson(
 await execCommand(`rimraf --glob tempAxios`);
 console.log(`[3/${totalStep}]:Files created successfully in ./${outputDir}`);
 
-//
-// if (withQueryClient) {
-//   console.log(
-//     `[4/${totalStep}]:React query files created successfully in ./${outputDir}`,
-//   );
-// }
+if (withQueryClient) {
+  await execCommand2(
+    `swagger-typescript-api -p ${url} -o ./tempReactQuery --modular --axios --single-http-client -t ${relativePath}/../openapi-template/my-templates`,
+  );
+
+  console.log(
+    `[4/${totalStep}]:React query files created successfully in ./${outputDir}`,
+  );
+}

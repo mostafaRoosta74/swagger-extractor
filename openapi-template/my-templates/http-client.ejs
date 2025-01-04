@@ -1,0 +1,116 @@
+<%
+const { utils, config, routes, modelTypes } = it;
+// const { raw, routeName } = route;
+//console.log(Object.keys(routes.combined[0].routes[0].raw.tags[0]))
+let result;
+
+function camelToStackCase(str) {
+    let data = str.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
+    data = data.split(" ").map(i=>i.toUpperCase()).join("_")
+    return data
+}
+
+function createNestedObjectWithString(array, str) {
+    return array.reduceRight((acc, curr) => ({ [curr]: acc }), str);
+}
+
+function joinObjects(...objects) {
+    const result = {};
+
+    function deepMerge(target, source, mergeStrategy = 'array') { // Added mergeStrategy parameter
+        for (const key in source) {
+            if (source.hasOwnProperty(key)) {
+                if (typeof target[key] === 'object' && target[key] && typeof source[key] === 'object' && source[key]) {
+                    deepMerge(target[key], source[key], mergeStrategy);
+                } else if (target.hasOwnProperty(key)) { // Key exists in both
+                    switch (mergeStrategy) {
+                        case 'array':
+                            if (!Array.isArray(target[key])) {
+                                target[key] = [target[key]];
+                            }
+                            if(Array.isArray(source[key])){
+                                target[key].push(...source[key])
+                            }else{
+                                target[key].push(source[key]);
+                            }
+                            break;
+                        case 'overwrite': // Last value wins
+                            target[key] = source[key];
+                            break;
+                        case 'first': // First value wins (do nothing)
+                            break;
+                        case 'concat': // Concatenate strings, otherwise overwrite
+                            if (typeof target[key] === 'string' && typeof source[key] === 'string') {
+                                target[key] += source[key];
+                            } else {
+                                target[key] = source[key]; // Overwrite if not both strings
+                            }
+                            break;
+                        case 'concat-array': // always concat to array even if the value is not an array
+                            if (!Array.isArray(target[key])) {
+                                target[key] = [target[key]];
+                            }
+                            if(Array.isArray(source[key])){
+                                target[key].push(...source[key])
+                            }else{
+                                target[key].push(source[key]);
+                            }
+                            break;
+                        default:
+                            throw new Error(`Invalid merge strategy: ${mergeStrategy}`);
+                    }
+                } else { // Key only in source
+                    target[key] = source[key];
+                }
+            }
+        }
+    }
+
+    const mergeStrategy = arguments[arguments.length -1];
+    let objs = objects;
+    if(typeof mergeStrategy === 'string'){
+        objs = objects.slice(0, objects.length - 1)
+    }
+
+    for (const obj of objs) {
+        deepMerge(result, obj, typeof mergeStrategy === 'string' ? mergeStrategy : "array");
+    }
+
+    return result;
+}
+
+let list = []
+for (let i=0;i<routes.combined.length;i++){
+    for (let j=0;j<routes.combined[i].routes.length;j++){
+        list.push(createNestedObjectWithString(
+                routes.combined[i].routes[j].raw.tags.map(i=>i.toUpperCase()),
+                camelToStackCase(routes.combined[i].routes[j].routeName.usage)
+        ))
+    }
+}
+
+let res = {}
+function convertToResult (all,result) {
+    for (const item of Object.entries(all)) {
+
+        const [key,value] = item;
+        if(Array.isArray(value)){
+            value.forEach(i=>{
+                if(result[key]){
+                    result[key][i] = i
+                }else {
+                    result[key]= {[i]:i}
+                }
+
+            })
+        }else {
+            convertToResult(value,result[key])
+        }
+    }
+
+}
+convertToResult(joinObjects(...list),res)
+%>
+
+
+export const QUERY_KEYS = <%~ JSON.stringify(res) %>

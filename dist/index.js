@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
-import { cleanUpFiles, copyDirectory, createDirectory, createFileWithJson, execCommand, execCommand2, readDirectory, readFile, } from "./utils.js";
+import { cleanUpFiles, execCommand2, } from "./utils.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 // variables
@@ -54,36 +54,56 @@ openApiTools = {
         },
     },
 };
-console.log(`[0/${totalStep}]: swagger-extractor started.`);
-// -------------------> Generate type file
-createFileWithJson(openApiToolsFileName, JSON.stringify(openApiTools));
-await execCommand2(`openapi-generator-cli generate --generator-key ${folderName}`);
-await execCommand(`rimraf --glob ${openApiToolsFileName}`);
-// copy type files
-await execCommand(`rimraf --glob ./${outputDir}axios/models/${folderName}`);
-await createDirectory(`./${outputDir}axios/models/${folderName}`);
-await copyDirectory(`${tempFolder}/models/`, `./${outputDir}axios/models/${folderName}`);
-await execCommand(`rimraf --glob ${tempFolder}`);
-console.log(`[1/${totalStep}]:Type files generated successfully.`);
-//--------------------> Create axios file
-await execCommand2(`swagger-typescript-api -p ${url} -o ./tempAxios --modular --axios --single-http-client -t ${relativePath}/../openapi-template/swagger-typescript-api-template`);
-console.log(`[2/${totalStep}]:axios generated successfully.`);
-// copy configAxios
-const httpClientData = await readFile("tempAxios/http-client.ts");
-createFileWithJson(`./${outputDir}axios/configAxios.ts`, httpClientData || "");
-// copy mainAxios
-const tempAxiosDirectoryArray = await readDirectory("tempAxios");
-const mainAxiosFileName = tempAxiosDirectoryArray.find((item) => !["data-contracts.ts", "http-client.ts"].includes(item));
-let mainAxiosData = (await readFile(`tempAxios/${mainAxiosFileName}`)) || "";
-mainAxiosData = mainAxiosData?.replace("./data-contracts", `./models/${folderName}`);
-mainAxiosData = mainAxiosData?.replace("./http-client", "./configAxios");
-createFileWithJson(`./${outputDir}axios/${folderName}Axios.ts`, mainAxiosData || "");
-//------------->clean up
-await execCommand(`rimraf --glob tempAxios`);
-console.log(`[3/${totalStep}]:Files created successfully in ./${outputDir}`);
+// console.log(`[0/${totalStep}]: swagger-extractor started.`);
 //
+// // -------------------> Generate type file
+// createFileWithJson(openApiToolsFileName, JSON.stringify(openApiTools));
+// await execCommand2(
+//   `openapi-generator-cli generate --generator-key ${folderName}`,
+// );
+// await execCommand(`rimraf --glob ${openApiToolsFileName}`);
+//
+// // copy type files
+// await execCommand(`rimraf --glob ./${outputDir}axios/models/${folderName}`);
+// await createDirectory(`./${outputDir}axios/models/${folderName}`);
+// await copyDirectory(
+//   `${tempFolder}/models/`,
+//   `./${outputDir}axios/models/${folderName}`,
+// );
+// await execCommand(`rimraf --glob ${tempFolder}`);
+// console.log(`[1/${totalStep}]:Type files generated successfully.`);
+//
+// //--------------------> Create axios file
+// await execCommand2(
+//   `swagger-typescript-api -p ${url} -o ./tempAxios --modular --axios --single-http-client -t ${relativePath}/../openapi-template/swagger-typescript-api-template`,
+// );
+// console.log(`[2/${totalStep}]:axios generated successfully.`);
+// // copy configAxios
+// const httpClientData = await readFile("tempAxios/http-client.ts");
+// createFileWithJson(`./${outputDir}axios/configAxios.ts`, httpClientData || "");
+//
+// // copy mainAxios
+// const tempAxiosDirectoryArray = await readDirectory("tempAxios");
+// const mainAxiosFileName = tempAxiosDirectoryArray.find(
+//   (item) => !["data-contracts.ts", "http-client.ts"].includes(item),
+// );
+// let mainAxiosData = (await readFile(`tempAxios/${mainAxiosFileName}`)) || "";
+// mainAxiosData = mainAxiosData?.replace(
+//   "./data-contracts",
+//   `./models/${folderName}`,
+// );
+// mainAxiosData = mainAxiosData?.replace("./http-client", "./configAxios");
+// createFileWithJson(
+//   `./${outputDir}axios/${folderName}Axios.ts`,
+//   mainAxiosData || "",
+// );
+//
+// //------------->clean up
+// await execCommand(`rimraf --glob tempAxios`);
+// console.log(`[3/${totalStep}]:Files created successfully in ./${outputDir}`);
 // if (withQueryClient) {
 //   console.log(
 //     `[4/${totalStep}]:React query files created successfully in ./${outputDir}`,
 //   );
 // }
+await execCommand2(`swagger-typescript-api -p ${url} -o ./tempReactQuery --modular --axios --single-http-client -t ${relativePath}/../openapi-template/my-templates`);

@@ -1,0 +1,31 @@
+<%
+const { utils, route, config, modelTypes } = it;
+const { _, pascalCase, require } = utils;
+const apiClassName = pascalCase(route.moduleName);
+const routes = route.routes;
+const dataContracts = _.map(modelTypes, "name");
+%>
+
+import AXIOS_NAME from "AXIOS_PATH";
+import { QUERY_KEYS } from "CONSTANCE_PATH";
+import { useMutation, useQueryClient,useQuery } from "@tanstack/react-query";
+import { EnqueueSnackbar, useSnackbar } from "notistack";
+import { useTranslation } from "react-i18next";
+import {TFunction} from "i18next";
+
+import { axiosRequest, RequestParams, ContentType, HttpResponse,axiosInstance } from "./<%~ config.fileNames.httpClient %>";
+<% if (dataContracts.length) { %>
+import { <%~ dataContracts.join(", ") %> } from "./<%~ config.fileNames.dataContracts %>"
+<% } %>
+
+export const onError = (t: TFunction<"translation", undefined>,enqueueSnackbar: EnqueueSnackbar)=>(error: any) => {
+    enqueueSnackbar(t(error?.response?.data?.message), {
+        variant: "error",
+    });
+}
+
+
+<% for (const route of routes) { %>
+<%~ includeFile('./procedure-call.ejs', { ...it, route }) %>
+<% } %>
+

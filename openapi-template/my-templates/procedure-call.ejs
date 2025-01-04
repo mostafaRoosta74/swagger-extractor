@@ -1,0 +1,131 @@
+<%
+const { utils, route, config } = it;
+const { raw,requestBodyInfo, responseBodyInfo, specificArgNameResolver, routeName } = route;
+const { _, getInlineParseContent, getParseContent, parseSchema, getComponentByRef, require,pascalCase } = utils;
+const { parameters, path, method, payload, query, formData, security, requestParams } = route.request;
+const { type, errorType, contentTypes } = route.response;
+const { HTTP_CLIENT, RESERVED_REQ_PARAMS_ARG_NAMES } = config.constants;
+const routeDocs = includeFile("@base/route-docs", { config, route, utils });
+const queryName = (query && query.name) || "query";
+const pathParams = _.values(parameters);
+const pathParamsNames = _.map(pathParams, "name");
+
+const isFetchTemplate = config.httpClientType === HTTP_CLIENT.FETCH;
+
+const requestConfigParam = {
+    name: specificArgNameResolver.resolve(RESERVED_REQ_PARAMS_ARG_NAMES),
+    optional: true,
+    type: "RequestParams",
+    defaultValue: "{}",
+}
+
+const argToTmpl = ({ name, optional, type, defaultValue }) => `${name}${!defaultValue && optional ? '?' : ''}: ${type}${defaultValue ? ` = ${defaultValue}` : ''}`;
+
+const rawWrapperArgs = config.extractRequestParams ?
+    _.compact([
+        requestParams && {
+          name: pathParams.length ? `{ ${_.join(pathParamsNames, ", ")}, ...${queryName} }` : queryName,
+          optional: false,
+          type: getInlineParseContent(requestParams),
+        },
+        ...(!requestParams ? pathParams : []),
+        payload,
+        requestConfigParam,
+    ]) :
+    _.compact([
+        ...pathParams,
+        query,
+        payload,
+        requestConfigParam,
+    ])
+
+
+const wrapperArgs = _
+    // Sort by optionality
+    .sortBy(rawWrapperArgs, [o => o.optional])
+    .map(argToTmpl)
+    .join(', ')
+
+// RequestParams["type"]
+const requestContentKind = {
+    "JSON": "ContentType.Json",
+    "URL_ENCODED": "ContentType.UrlEncoded",
+    "FORM_DATA": "ContentType.FormData",
+    "TEXT": "ContentType.Text",
+}
+// RequestParams["format"]
+const responseContentKind = {
+    "JSON": '"json"',
+    "IMAGE": '"blob"',
+    "FORM_DATA": isFetchTemplate ? '"formData"' : '"document"'
+}
+
+const bodyTmpl = _.get(payload, "name") || null;
+const queryTmpl = (query != null && queryName) || null;
+const bodyContentKindTmpl = requestContentKind[requestBodyInfo.contentKind] || null;
+const responseFormatTmpl = responseContentKind[responseBodyInfo.success && responseBodyInfo.success.schema && responseBodyInfo.success.schema.contentKind] || null;
+const securityTmpl = security ? 'true' : null;
+
+const describeReturnType = () => {
+    if (!config.toJS) return "";
+
+    switch(config.httpClientType) {
+        case HTTP_CLIENT.AXIOS: {
+          return `Promise<AxiosResponse<${type}>>`
+        }
+        default: {
+          return `Promise<HttpResponse<${type}, ${errorType}>`
+        }
+    }
+}
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+function camelToStackCase(str) {
+    let data = str.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase();
+    data = data.split(" ").map(i=>i.toUpperCase()).join("_")
+    return data
+}
+
+const KEY_PATH = [...raw.tags.map(i=>i.toUpperCase()),camelToStackCase(pascalCase(routeName.usage))].join(".");
+const KEY_PARAMS = rawWrapperArgs.map(item => item.name).join(", ")
+%>
+
+<% if(["get","delete"].includes(method)){ %>
+
+export const use<%~ capitalizeFirstLetter(route.routeName.usage) %> = (<%~ wrapperArgs %>,<%~ method ==="get" ? "isEnabled: boolean,":""%>) =>
+    useQuery({
+        queryKey: [QUERY_KEYS.<%~ KEY_PATH %>,[<%~ KEY_PARAMS %>]],
+        queryFn: () => AXIOS_NAME.<%~ route.routeName.usage %>(<%~ KEY_PARAMS %>),
+        <%~method === "get" ? "enabled: isEnabled,":""%>
+    });
+
+<% } %>
+
+<% if(!["get","delete"].includes(method)){ %>
+
+export const use<%~ capitalizeFirstLetter(route.routeName.usage) %> = ({ onSuccess }: { onSuccess?: (data:<%~ type %>) => void }) => {
+    const { enqueueSnackbar } = useSnackbar();
+    const { t } = useTranslation();
+    const queryClient = useQueryClient();
+
+    const { mutate, isPending, ...otherProps } = useMutation({
+        mutationFn: AXIOS_NAME.<%~ route.routeName.usage %>,
+        mutationKey:[QUERY_KEYS.<%~ KEY_PATH %>],
+        onSuccess: (data:<%~ type %>) => {
+            queryClient.invalidateQueries({ queryKey: [] });
+            enqueueSnackbar(t("CREATED_SUCCESSFULLY",{ name: t("") }));
+            if (onSuccess) {
+                onSuccess(data);
+            }
+        },
+        onError: onError(t,enqueueSnackbar),
+    });
+
+    return { <%~ capitalizeFirstLetter(route.routeName.usage) %>: mutate, is<%~ capitalizeFirstLetter(route.routeName.usage) %>Pending: isPending, ...otherProps };
+}
+
+<% } %>
+
+
