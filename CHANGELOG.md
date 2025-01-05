@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.1](https://github.com/mostafaRoosta74/swagger-extractor/compare/v1.1.0...v1.1.1) (2025-01-05)
+
+
+### Bug Fixes
+
+* edit readme and add example ([7f0408d](https://github.com/mostafaRoosta74/swagger-extractor/commit/7f0408d6bd90ae07c8a2daf6a2c824df218da8c6))
+
 ## [1.1.0](https://github.com/mostafaRoosta74/swagger-extractor/compare/v1.0.5...v1.1.0) (2025-01-05)
 
 
