@@ -1,5 +1,18 @@
 # Changelog
 
+## [1.1.0](https://github.com/mostafaRoosta74/swagger-extractor/compare/v1.0.5...v1.1.0) (2025-01-05)
+
+
+### Features
+
+* add queryClient hooks and QUERY_KEY part 1 ([1c0621e](https://github.com/mostafaRoosta74/swagger-extractor/commit/1c0621ef25b2c2f9a529673a08899d089f997868))
+* add queryClient hooks and QUERY_KEY part 2 ([2d20a16](https://github.com/mostafaRoosta74/swagger-extractor/commit/2d20a165cfe90fdbaa27417a8051aa3ba23d520f))
+
+
+### Bug Fixes
+
+* cleanup file on ctrl+c or crash ([1933806](https://github.com/mostafaRoosta74/swagger-extractor/commit/193380680ef612ea05e4ac81b4f085d261405b85))
+
 ## [1.0.5](https://github.com/mostafaRoosta74/swagger-extractor/compare/v1.0.4...v1.0.5) (2024-12-30)
 
 
