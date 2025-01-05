@@ -6,8 +6,11 @@ import {
   copyDirectory,
   createDirectory,
   createFileWithJson,
+  deepMerge,
   execCommand,
   execCommand2,
+  fixJSONString,
+  isExist,
   readDirectory,
   readFile,
 } from "./utils.js";
@@ -126,6 +129,59 @@ if (withQueryClient) {
   await execCommand2(
     `swagger-typescript-api -p ${url} -o ./tempReactQuery --modular --axios --single-http-client -t ${relativePath}/../openapi-template/my-templates`,
   );
+  let constants = (await readFile(`tempReactQuery/http-client.ts`)) || "";
+
+  if (await isExist(`./${outputDir}axios/constants.ts`)) {
+    constants = constants.replace(";", "");
+    const newJson = JSON.parse(
+      fixJSONString(constants.split("export const QUERY_KEYS = ")[1]) || "",
+    );
+    let oldJsonData =
+      (await readFile(`./${outputDir}axios/constants.ts`)) || "";
+    oldJsonData = oldJsonData.replace(";", "");
+    const oldJson = JSON.parse(
+      fixJSONString(oldJsonData.split("export const QUERY_KEYS = ")[1]) || "",
+    );
+    createFileWithJson(
+      `./${outputDir}axios/constants.ts`,
+      constants.split("export const QUERY_KEYS = ")[0] +
+        "export const QUERY_KEYS = " +
+        JSON.stringify(deepMerge(newJson, oldJson)),
+    );
+  } else {
+    createFileWithJson(`./${outputDir}axios/constants.ts`, constants);
+  }
+
+  await createDirectory(`./${outputDir}axios/reactQuery/${folderName}`);
+  const tempReactQueryDirectoryArray = await readDirectory("tempReactQuery");
+  const fileNames = tempReactQueryDirectoryArray.filter(
+    (item) => !["http-client.ts"].includes(item),
+  );
+  fileNames.forEach(async (item) => {
+    let mainAxiosData = (await readFile(`tempReactQuery/${item}`)) || "";
+    //replace
+    mainAxiosData = mainAxiosData?.replace(
+      "./data-contracts",
+      `../models/${folderName}`,
+    );
+    mainAxiosData = mainAxiosData?.replace("./http-client", "../configAxios");
+    mainAxiosData = mainAxiosData?.replace(
+      "AXIOS_PATH",
+      `../${folderName}Axios`,
+    );
+    mainAxiosData = mainAxiosData?.replaceAll(
+      "AXIOS_NAME",
+      `${folderName}Axios`,
+    );
+    mainAxiosData = mainAxiosData?.replace("CONSTANCE_PATH", "../constants");
+    //create
+    createFileWithJson(
+      `./${outputDir}axios/reactQuery/${folderName}/${item}`,
+      mainAxiosData || "",
+    );
+  });
+  //clean
+  await execCommand(`rimraf --glob tempReactQuery`);
 
   console.log(
     `[4/${totalStep}]:React query files created successfully in ./${outputDir}`,

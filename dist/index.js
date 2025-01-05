@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
-import { cleanUpFiles, execCommand2, } from "./utils.js";
+import { cleanUpFiles, copyDirectory, createDirectory, createFileWithJson, deepMerge, execCommand, execCommand2, fixJSONString, isExist, readDirectory, readFile, } from "./utils.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 // variables
@@ -10,8 +10,8 @@ let totalStep = 3;
 const url = argv.url;
 const folderName = argv["name"] || "output";
 const outputDir = argv["output"] ? `${argv["output"]}/` : "";
-// const withQueryClient = !!argv["withReactQuery"];
-// totalStep = withQueryClient ? totalStep + 1 : totalStep;
+const withQueryClient = !!argv["withReactQuery"];
+totalStep = withQueryClient ? totalStep + 1 : totalStep;
 let openApiTools = {};
 const openApiToolsFileName = "openapitools.json";
 const tempFolder = "tempFolder";
@@ -54,56 +54,64 @@ openApiTools = {
         },
     },
 };
-// console.log(`[0/${totalStep}]: swagger-extractor started.`);
-//
-// // -------------------> Generate type file
-// createFileWithJson(openApiToolsFileName, JSON.stringify(openApiTools));
-// await execCommand2(
-//   `openapi-generator-cli generate --generator-key ${folderName}`,
-// );
-// await execCommand(`rimraf --glob ${openApiToolsFileName}`);
-//
-// // copy type files
-// await execCommand(`rimraf --glob ./${outputDir}axios/models/${folderName}`);
-// await createDirectory(`./${outputDir}axios/models/${folderName}`);
-// await copyDirectory(
-//   `${tempFolder}/models/`,
-//   `./${outputDir}axios/models/${folderName}`,
-// );
-// await execCommand(`rimraf --glob ${tempFolder}`);
-// console.log(`[1/${totalStep}]:Type files generated successfully.`);
-//
-// //--------------------> Create axios file
-// await execCommand2(
-//   `swagger-typescript-api -p ${url} -o ./tempAxios --modular --axios --single-http-client -t ${relativePath}/../openapi-template/swagger-typescript-api-template`,
-// );
-// console.log(`[2/${totalStep}]:axios generated successfully.`);
-// // copy configAxios
-// const httpClientData = await readFile("tempAxios/http-client.ts");
-// createFileWithJson(`./${outputDir}axios/configAxios.ts`, httpClientData || "");
-//
-// // copy mainAxios
-// const tempAxiosDirectoryArray = await readDirectory("tempAxios");
-// const mainAxiosFileName = tempAxiosDirectoryArray.find(
-//   (item) => !["data-contracts.ts", "http-client.ts"].includes(item),
-// );
-// let mainAxiosData = (await readFile(`tempAxios/${mainAxiosFileName}`)) || "";
-// mainAxiosData = mainAxiosData?.replace(
-//   "./data-contracts",
-//   `./models/${folderName}`,
-// );
-// mainAxiosData = mainAxiosData?.replace("./http-client", "./configAxios");
-// createFileWithJson(
-//   `./${outputDir}axios/${folderName}Axios.ts`,
-//   mainAxiosData || "",
-// );
-//
-// //------------->clean up
-// await execCommand(`rimraf --glob tempAxios`);
-// console.log(`[3/${totalStep}]:Files created successfully in ./${outputDir}`);
-// if (withQueryClient) {
-//   console.log(
-//     `[4/${totalStep}]:React query files created successfully in ./${outputDir}`,
-//   );
-// }
-await execCommand2(`swagger-typescript-api -p ${url} -o ./tempReactQuery --modular --axios --single-http-client -t ${relativePath}/../openapi-template/my-templates`);
+console.log(`[0/${totalStep}]: swagger-extractor started.`);
+// -------------------> Generate type file
+createFileWithJson(openApiToolsFileName, JSON.stringify(openApiTools));
+await execCommand2(`openapi-generator-cli generate --generator-key ${folderName}`);
+await execCommand(`rimraf --glob ${openApiToolsFileName}`);
+// copy type files
+await execCommand(`rimraf --glob ./${outputDir}axios/models/${folderName}`);
+await createDirectory(`./${outputDir}axios/models/${folderName}`);
+await copyDirectory(`${tempFolder}/models/`, `./${outputDir}axios/models/${folderName}`);
+await execCommand(`rimraf --glob ${tempFolder}`);
+console.log(`[1/${totalStep}]:Type files generated successfully.`);
+//--------------------> Create axios file
+await execCommand2(`swagger-typescript-api -p ${url} -o ./tempAxios --modular --axios --single-http-client -t ${relativePath}/../openapi-template/swagger-typescript-api-template`);
+console.log(`[2/${totalStep}]:axios generated successfully.`);
+// copy configAxios
+const httpClientData = await readFile("tempAxios/http-client.ts");
+createFileWithJson(`./${outputDir}axios/configAxios.ts`, httpClientData || "");
+// copy mainAxios
+const tempAxiosDirectoryArray = await readDirectory("tempAxios");
+const mainAxiosFileName = tempAxiosDirectoryArray.find((item) => !["data-contracts.ts", "http-client.ts"].includes(item));
+let mainAxiosData = (await readFile(`tempAxios/${mainAxiosFileName}`)) || "";
+mainAxiosData = mainAxiosData?.replace("./data-contracts", `./models/${folderName}`);
+mainAxiosData = mainAxiosData?.replace("./http-client", "./configAxios");
+createFileWithJson(`./${outputDir}axios/${folderName}Axios.ts`, mainAxiosData || "");
+//------------->clean up
+await execCommand(`rimraf --glob tempAxios`);
+console.log(`[3/${totalStep}]:Files created successfully in ./${outputDir}`);
+if (withQueryClient) {
+    await execCommand2(`swagger-typescript-api -p ${url} -o ./tempReactQuery --modular --axios --single-http-client -t ${relativePath}/../openapi-template/my-templates`);
+    let constants = (await readFile(`tempReactQuery/http-client.ts`)) || "";
+    if (await isExist(`./${outputDir}axios/constants.ts`)) {
+        constants = constants.replace(";", "");
+        const newJson = JSON.parse(fixJSONString(constants.split("export const QUERY_KEYS = ")[1]) || "");
+        let oldJsonData = (await readFile(`./${outputDir}axios/constants.ts`)) || "";
+        oldJsonData = oldJsonData.replace(";", "");
+        const oldJson = JSON.parse(fixJSONString(oldJsonData.split("export const QUERY_KEYS = ")[1]) || "");
+        createFileWithJson(`./${outputDir}axios/constants.ts`, constants.split("export const QUERY_KEYS = ")[0] +
+            "export const QUERY_KEYS = " +
+            JSON.stringify(deepMerge(newJson, oldJson)));
+    }
+    else {
+        createFileWithJson(`./${outputDir}axios/constants.ts`, constants);
+    }
+    await createDirectory(`./${outputDir}axios/reactQuery/${folderName}`);
+    const tempReactQueryDirectoryArray = await readDirectory("tempReactQuery");
+    const fileNames = tempReactQueryDirectoryArray.filter((item) => !["http-client.ts"].includes(item));
+    fileNames.forEach(async (item) => {
+        let mainAxiosData = (await readFile(`tempReactQuery/${item}`)) || "";
+        //replace
+        mainAxiosData = mainAxiosData?.replace("./data-contracts", `../models/${folderName}`);
+        mainAxiosData = mainAxiosData?.replace("./http-client", "../configAxios");
+        mainAxiosData = mainAxiosData?.replace("AXIOS_PATH", `../${folderName}Axios`);
+        mainAxiosData = mainAxiosData?.replaceAll("AXIOS_NAME", `${folderName}Axios`);
+        mainAxiosData = mainAxiosData?.replace("CONSTANCE_PATH", "../constants");
+        //create
+        createFileWithJson(`./${outputDir}axios/reactQuery/${folderName}/${item}`, mainAxiosData || "");
+    });
+    //clean
+    await execCommand(`rimraf --glob tempReactQuery`);
+    console.log(`[4/${totalStep}]:React query files created successfully in ./${outputDir}`);
+}

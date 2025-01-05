@@ -135,5 +135,113 @@ export const cleanUpFiles = async () => {
   await execCommand(`rimraf --glob openapitools.json`);
   await execCommand(`rimraf --glob tempFolder`);
   await execCommand(`rimraf --glob tempAxios`);
+  await execCommand(`rimraf --glob tempReactQuery`);
   process.exit();
 };
+
+function isObject(item: any) {
+  return item && typeof item === "object" && !Array.isArray(item);
+}
+
+export function deepMerge(
+  target: Record<string, any>,
+  ...sources: Record<string, any>[]
+) {
+  if (!sources.length) return target;
+
+  const source = sources.shift();
+
+  if (isObject(target) && isObject(source)) {
+    for (const key in source) {
+      if (isObject(source[key])) {
+        if (!target[key]) Object.assign(target, { [key]: {} });
+        deepMerge(target[key], source[key]);
+      } else {
+        target[key] = source[key];
+      }
+    }
+  }
+
+  return deepMerge(target, ...sources);
+}
+
+export function fixJSONString(jsonString: string) {
+  try {
+    JSON.parse(jsonString);
+    return jsonString;
+  } catch (e) {
+    // 0. Remove trailing commas within objects and arrays (including nested)
+    function removeTrailingCommas(str: string) {
+      let inString = false;
+      let result = "";
+      for (let i = 0; i < str.length; i++) {
+        const char = str[i];
+        if (char === '"') {
+          inString = !inString;
+        }
+        if (char === "," && !inString) {
+          let nextNonWhitespace = i + 1;
+          while (
+            nextNonWhitespace < str.length &&
+            /\s/.test(str[nextNonWhitespace])
+          ) {
+            nextNonWhitespace++;
+          }
+          if (
+            str[nextNonWhitespace] === "]" ||
+            str[nextNonWhitespace] === "}"
+          ) {
+            continue; // Skip the comma
+          }
+        }
+        result += char;
+      }
+      return result;
+    }
+    jsonString = removeTrailingCommas(jsonString);
+
+    // 1. Handle simple key-value pairs
+    jsonString = jsonString.replace(/({|,)\s*([a-zA-Z0-9_]+)\s*:/g, '$1 "$2":');
+
+    // 2. Handle string values without quotes
+    jsonString = jsonString.replace(/:(\s*)([^",{}]+?)([,}])/g, ': "$2"$3');
+
+    // 3. Handle string values that start with a quote but don't end with one
+    jsonString = jsonString.replace(/:(\s*)(".*[^"])([,}])/g, ': $2"$3');
+
+    // 4. Handle keys that might have spaces or special characters
+    jsonString = jsonString.replace(
+      /({|,)\s*([^"{}:,\s]+)\s*:/g,
+      function (match, p1, p2) {
+        if (!p2.startsWith('"') && !p2.endsWith('"')) {
+          return p1 + ' "' + p2.trim() + '":';
+        }
+        return match;
+      },
+    );
+
+    try {
+      JSON.parse(jsonString);
+      return jsonString;
+    } catch (finalError) {
+      console.error(
+        "Could not fix JSON string:",
+        finalError,
+        "Original string:",
+        jsonString,
+      );
+      return null;
+    }
+  }
+}
+
+export const isExist = (path: string) =>
+  new Promise((resolve, reject) => {
+    fs.access(path, fs.constants.F_OK, (err) => {
+      if (err) {
+        resolve(false);
+        return;
+      }
+      resolve(true);
+    });
+  });
