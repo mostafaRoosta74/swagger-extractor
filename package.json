@@ -8,10 +8,12 @@
     "test": "npx . --url=\"https://petstore.swagger.io/v2/swagger.json\" --name=\"pet\" --withReactQuery"
   },
   "keywords": [
+    "auto-generate-axios",
+    "auto-generate-react-query",
+    "swagger-extractor",
     "axios",
-    "swigger",
-    "axios",
-    "extractor"
+    "extractor",
+    "react-query"
   ],
   "dependencies": {
     "@openapitools/openapi-generator-cli": "^2.7.0",
