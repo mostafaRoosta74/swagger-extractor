@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/mostafaRoosta74/swagger-extractor/compare/v1.1.1...v1.1.2) (2025-01-07)
+
+
+### Bug Fixes
+
+* fix react-query build routing and delete hook ([e66212d](https://github.com/mostafaRoosta74/swagger-extractor/commit/e66212d25cddf768070ac2921d77108dfea62e0a))
+
 ## [1.1.1](https://github.com/mostafaRoosta74/swagger-extractor/compare/v1.1.0...v1.1.1) (2025-01-05)
 
 
