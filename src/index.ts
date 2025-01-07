@@ -22,13 +22,14 @@ const argv = yargs(hideBin(process.argv)).argv as {
   url?: string;
   name?: string;
   output?: string;
-  withReactQuery?: boolean;
+  reactQuery?: boolean;
+  rq?: boolean;
 };
 let totalStep = 3;
 const url = argv.url;
 const folderName = argv["name"] || "output";
 const outputDir = argv["output"] ? `${argv["output"]}/` : "";
-const withQueryClient = !!argv["withReactQuery"];
+const withQueryClient = !!argv["reactQuery"] || !!argv["rq"];
 totalStep = withQueryClient ? totalStep + 1 : totalStep;
 let openApiTools: object = {};
 const openApiToolsFileName = "openapitools.json";
@@ -162,18 +163,21 @@ if (withQueryClient) {
     //replace
     mainAxiosData = mainAxiosData?.replace(
       "./data-contracts",
-      `../models/${folderName}`,
+      `../../models/${folderName}`,
     );
-    mainAxiosData = mainAxiosData?.replace("./http-client", "../configAxios");
+    mainAxiosData = mainAxiosData?.replace(
+      "./http-client",
+      "../../configAxios",
+    );
     mainAxiosData = mainAxiosData?.replace(
       "AXIOS_PATH",
-      `../${folderName}Axios`,
+      `../../${folderName}Axios`,
     );
     mainAxiosData = mainAxiosData?.replaceAll(
       "AXIOS_NAME",
       `${folderName}Axios`,
     );
-    mainAxiosData = mainAxiosData?.replace("CONSTANCE_PATH", "../constants");
+    mainAxiosData = mainAxiosData?.replace("CONSTANCE_PATH", "../../constants");
     //create
     createFileWithJson(
       `./${outputDir}axios/reactQuery/${folderName}/${item}`,

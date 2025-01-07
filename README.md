@@ -54,11 +54,21 @@ output directory (default is `/`)
 <tr width="600px">
 <td>
 
-`--withReactQuery`
+`--reactQuery`
 </td>
 <td>
 
 Generate react-query hooks and keys for each route 
+</td>
+</tr>
+<tr width="600px">
+<td>
+
+`--rq`
+</td>
+<td>
+
+Same as `--reactQuery`
 </td>
 </tr>
 </tbody>
@@ -90,7 +100,7 @@ axios
 
 ## Output directory structure (with --withReactQuery)
 ##### after run:
-`npx swagger-extractor --url="https://petstore.swagger.io/v2/swagger.json" --name="pet" --withReactQuery`
+`npx swagger-extractor --url="https://petstore.swagger.io/v2/swagger.json" --name="pet" --reactQuery`
 ##### create folder and file like this:
 ```
 axios

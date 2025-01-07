@@ -10,14 +10,14 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import petAxios from "../petAxios";
-import { QUERY_KEYS } from "../constants";
+import petAxios from "../../petAxios";
+import { QUERY_KEYS } from "../../constants";
 import { TFunction } from "i18next";
 import { EnqueueSnackbar, useSnackbar } from "notistack";
 import { useTranslation } from "react-i18next";
 
-import { ApiResponse } from "../models/pet";
-import { RequestParams } from "../configAxios";
+import { ApiResponse } from "../../models/pet";
+import { RequestParams } from "../../configAxios";
 
 export const onError = (t: TFunction<"translation", undefined>, enqueueSnackbar: EnqueueSnackbar) => (error: any) => {
   enqueueSnackbar(t(error?.response?.data?.message), {
@@ -97,7 +97,7 @@ export const useFindPetsByStatus = (
   isEnabled: boolean,
 ) =>
   useQuery({
-    queryKey: [QUERY_KEYS.PET.FIND_PETS_BY_STATUS, [query, params]],
+    queryKey: [QUERY_KEYS.PET.FIND_PETS_BY_STATUS, query, params],
     queryFn: () => petAxios.findPetsByStatus(query, params),
     enabled: isEnabled,
   });
@@ -111,14 +111,14 @@ export const useFindPetsByTags = (
   isEnabled: boolean,
 ) =>
   useQuery({
-    queryKey: [QUERY_KEYS.PET.FIND_PETS_BY_TAGS, [query, params]],
+    queryKey: [QUERY_KEYS.PET.FIND_PETS_BY_TAGS, query, params],
     queryFn: () => petAxios.findPetsByTags(query, params),
     enabled: isEnabled,
   });
 
 export const useGetPetById = (petId: number, params: RequestParams = {}, isEnabled: boolean) =>
   useQuery({
-    queryKey: [QUERY_KEYS.PET.GET_PET_BY_ID, [petId, params]],
+    queryKey: [QUERY_KEYS.PET.GET_PET_BY_ID, petId, params],
     queryFn: () => petAxios.getPetById(petId, params),
     enabled: isEnabled,
   });
@@ -144,8 +144,23 @@ export const useUpdatePetWithForm = ({ onSuccess }: { onSuccess?: (data: any) =>
   return { UpdatePetWithForm: mutate, isUpdatePetWithFormPending: isPending, ...otherProps };
 };
 
-export const useDeletePet = (petId: number, params: RequestParams = {}) =>
-  useQuery({
-    queryKey: [QUERY_KEYS.PET.DELETE_PET, [petId, params]],
-    queryFn: () => petAxios.deletePet(petId, params),
+export const useDeletePet = ({ onSuccess }: { onSuccess?: (data: any) => void }) => {
+  const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending, ...otherProps } = useMutation({
+    mutationFn: petAxios.deletePet,
+    mutationKey: [QUERY_KEYS.PET.DELETE_PET],
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: [] });
+      enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));
+      if (onSuccess) {
+        onSuccess(data);
+      }
+    },
+    onError: onError(t, enqueueSnackbar),
   });
+
+  return { DeletePet: mutate, isDeletePetPending: isPending, ...otherProps };
+};

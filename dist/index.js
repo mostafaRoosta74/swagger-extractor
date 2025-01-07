@@ -10,7 +10,7 @@ let totalStep = 3;
 const url = argv.url;
 const folderName = argv["name"] || "output";
 const outputDir = argv["output"] ? `${argv["output"]}/` : "";
-const withQueryClient = !!argv["withReactQuery"];
+const withQueryClient = !!argv["reactQuery"] || !!argv["rq"];
 totalStep = withQueryClient ? totalStep + 1 : totalStep;
 let openApiTools = {};
 const openApiToolsFileName = "openapitools.json";
@@ -103,11 +103,11 @@ if (withQueryClient) {
     fileNames.forEach(async (item) => {
         let mainAxiosData = (await readFile(`tempReactQuery/${item}`)) || "";
         //replace
-        mainAxiosData = mainAxiosData?.replace("./data-contracts", `../models/${folderName}`);
-        mainAxiosData = mainAxiosData?.replace("./http-client", "../configAxios");
-        mainAxiosData = mainAxiosData?.replace("AXIOS_PATH", `../${folderName}Axios`);
+        mainAxiosData = mainAxiosData?.replace("./data-contracts", `../../models/${folderName}`);
+        mainAxiosData = mainAxiosData?.replace("./http-client", "../../configAxios");
+        mainAxiosData = mainAxiosData?.replace("AXIOS_PATH", `../../${folderName}Axios`);
         mainAxiosData = mainAxiosData?.replaceAll("AXIOS_NAME", `${folderName}Axios`);
-        mainAxiosData = mainAxiosData?.replace("CONSTANCE_PATH", "../constants");
+        mainAxiosData = mainAxiosData?.replace("CONSTANCE_PATH", "../../constants");
         //create
         createFileWithJson(`./${outputDir}axios/reactQuery/${folderName}/${item}`, mainAxiosData || "");
     });

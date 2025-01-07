@@ -10,13 +10,13 @@
  */
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import petAxios from "../petAxios";
-import { QUERY_KEYS } from "../constants";
+import petAxios from "../../petAxios";
+import { QUERY_KEYS } from "../../constants";
 import { TFunction } from "i18next";
 import { EnqueueSnackbar, useSnackbar } from "notistack";
 import { useTranslation } from "react-i18next";
 
-import { RequestParams } from "../configAxios";
+import { RequestParams } from "../../configAxios";
 
 export const onError = (t: TFunction<"translation", undefined>, enqueueSnackbar: EnqueueSnackbar) => (error: any) => {
   enqueueSnackbar(t(error?.response?.data?.message), {
@@ -47,7 +47,7 @@ export const useCreateUsersWithListInput = ({ onSuccess }: { onSuccess?: (data: 
 
 export const useGetUserByName = (username: string, params: RequestParams = {}, isEnabled: boolean) =>
   useQuery({
-    queryKey: [QUERY_KEYS.USER.GET_USER_BY_NAME, [username, params]],
+    queryKey: [QUERY_KEYS.USER.GET_USER_BY_NAME, username, params],
     queryFn: () => petAxios.getUserByName(username, params),
     enabled: isEnabled,
   });
@@ -73,11 +73,26 @@ export const useUpdateUser = ({ onSuccess }: { onSuccess?: (data: any) => void }
   return { UpdateUser: mutate, isUpdateUserPending: isPending, ...otherProps };
 };
 
-export const useDeleteUser = (username: string, params: RequestParams = {}) =>
-  useQuery({
-    queryKey: [QUERY_KEYS.USER.DELETE_USER, [username, params]],
-    queryFn: () => petAxios.deleteUser(username, params),
+export const useDeleteUser = ({ onSuccess }: { onSuccess?: (data: any) => void }) => {
+  const { enqueueSnackbar } = useSnackbar();
+  const { t } = useTranslation();
+  const queryClient = useQueryClient();
+
+  const { mutate, isPending, ...otherProps } = useMutation({
+    mutationFn: petAxios.deleteUser,
+    mutationKey: [QUERY_KEYS.USER.DELETE_USER],
+    onSuccess: (data: any) => {
+      queryClient.invalidateQueries({ queryKey: [] });
+      enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));
+      if (onSuccess) {
+        onSuccess(data);
+      }
+    },
+    onError: onError(t, enqueueSnackbar),
   });
+
+  return { DeleteUser: mutate, isDeleteUserPending: isPending, ...otherProps };
+};
 
 export const useLoginUser = (
   query: {
@@ -90,14 +105,14 @@ export const useLoginUser = (
   isEnabled: boolean,
 ) =>
   useQuery({
-    queryKey: [QUERY_KEYS.USER.LOGIN_USER, [query, params]],
+    queryKey: [QUERY_KEYS.USER.LOGIN_USER, query, params],
     queryFn: () => petAxios.loginUser(query, params),
     enabled: isEnabled,
   });
 
 export const useLogoutUser = (params: RequestParams = {}, isEnabled: boolean) =>
   useQuery({
-    queryKey: [QUERY_KEYS.USER.LOGOUT_USER, [params]],
+    queryKey: [QUERY_KEYS.USER.LOGOUT_USER, params],
     queryFn: () => petAxios.logoutUser(params),
     enabled: isEnabled,
   });

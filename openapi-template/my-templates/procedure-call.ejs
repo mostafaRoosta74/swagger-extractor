@@ -92,18 +92,18 @@ const KEY_PATH = [...raw.tags.map(i=>i.toUpperCase()),camelToStackCase(pascalCas
 const KEY_PARAMS = rawWrapperArgs.map(item => item.name).join(", ")
 %>
 
-<% if(["get","delete"].includes(method)){ %>
+<% if(["get"].includes(method)){ %>
 
 export const use<%~ capitalizeFirstLetter(route.routeName.usage) %> = (<%~ wrapperArgs %>,<%~ method ==="get" ? "isEnabled: boolean,":""%>) =>
     useQuery({
-        queryKey: [QUERY_KEYS.<%~ KEY_PATH %>,[<%~ KEY_PARAMS %>]],
+        queryKey: [QUERY_KEYS.<%~ KEY_PATH %>,<%~ KEY_PARAMS %>],
         queryFn: () => AXIOS_NAME.<%~ route.routeName.usage %>(<%~ KEY_PARAMS %>),
         <%~method === "get" ? "enabled: isEnabled,":""%>
     });
 
 <% } %>
 
-<% if(!["get","delete"].includes(method)){ %>
+<% if(!["get"].includes(method)){ %>
 
 export const use<%~ capitalizeFirstLetter(route.routeName.usage) %> = ({ onSuccess }: { onSuccess?: (data:<%~ type %>) => void }) => {
     const { enqueueSnackbar } = useSnackbar();
