@@ -27,7 +27,7 @@ export const onError = (t: TFunction<"translation", undefined>, enqueueSnackbar:
 
 export const useGetInventory = (params: RequestParams = {}, isEnabled: boolean) =>
   useQuery({
-    queryKey: [QUERY_KEYS.STORE.GET_INVENTORY, params],
+    queryKey: [QUERY_KEYS.PET.STORE.GET_INVENTORY, params],
     queryFn: () => petAxios.getInventory(params),
     enabled: isEnabled,
   });
@@ -39,7 +39,7 @@ export const usePlaceOrder = ({ onSuccess }: { onSuccess?: (data: Order) => void
 
   const { mutate, isPending, ...otherProps } = useMutation({
     mutationFn: petAxios.placeOrder,
-    mutationKey: [QUERY_KEYS.STORE.PLACE_ORDER],
+    mutationKey: [QUERY_KEYS.PET.STORE.PLACE_ORDER],
     onSuccess: (data: Order) => {
       queryClient.invalidateQueries({ queryKey: [] });
       enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));
@@ -55,7 +55,7 @@ export const usePlaceOrder = ({ onSuccess }: { onSuccess?: (data: Order) => void
 
 export const useGetOrderById = (orderId: number, params: RequestParams = {}, isEnabled: boolean) =>
   useQuery({
-    queryKey: [QUERY_KEYS.STORE.GET_ORDER_BY_ID, orderId, params],
+    queryKey: [QUERY_KEYS.PET.STORE.GET_ORDER_BY_ID, orderId, params],
     queryFn: () => petAxios.getOrderById(orderId, params),
     enabled: isEnabled,
   });
@@ -67,7 +67,7 @@ export const useDeleteOrder = ({ onSuccess }: { onSuccess?: (data: any) => void 
 
   const { mutate, isPending, ...otherProps } = useMutation({
     mutationFn: petAxios.deleteOrder,
-    mutationKey: [QUERY_KEYS.STORE.DELETE_ORDER],
+    mutationKey: [QUERY_KEYS.PET.STORE.DELETE_ORDER],
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: [] });
       enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));

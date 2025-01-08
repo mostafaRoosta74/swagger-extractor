@@ -5,7 +5,7 @@
   "description": "Extract axios functions and DTOs from swagger json link",
   "scripts": {
     "create-dist": "npx tsc --watch",
-    "test": "npx . --url=\"https://petstore.swagger.io/v2/swagger.json\" --name=\"pet\" --output=\"result-example\" --withReactQuery"
+    "test": "npx . --url=\"https://petstore.swagger.io/v2/swagger.json\" --name=\"pet\" --output=\"result-example\" --reactQuery"
   },
   "keywords": [
     "auto-generate-axios",

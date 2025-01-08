@@ -9,7 +9,7 @@ const routeDocs = includeFile("@base/route-docs", { config, route, utils });
 const queryName = (query && query.name) || "query";
 const pathParams = _.values(parameters);
 const pathParamsNames = _.map(pathParams, "name");
-
+const fileName = config.apiClassName
 const isFetchTemplate = config.httpClientType === HTTP_CLIENT.FETCH;
 
 const requestConfigParam = {
@@ -88,7 +88,7 @@ function camelToStackCase(str) {
     return data
 }
 
-const KEY_PATH = [...raw.tags.map(i=>i.toUpperCase()),camelToStackCase(pascalCase(routeName.usage))].join(".");
+const KEY_PATH = [camelToStackCase(fileName),...raw.tags.map(i=>i.toUpperCase()),camelToStackCase(pascalCase(routeName.usage))].join(".");
 const KEY_PARAMS = rawWrapperArgs.map(item => item.name).join(", ")
 %>
 

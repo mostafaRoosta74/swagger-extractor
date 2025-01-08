@@ -32,7 +32,7 @@ export const useUploadFile = ({ onSuccess }: { onSuccess?: (data: ApiResponse) =
 
   const { mutate, isPending, ...otherProps } = useMutation({
     mutationFn: petAxios.uploadFile,
-    mutationKey: [QUERY_KEYS.PET.UPLOAD_FILE],
+    mutationKey: [QUERY_KEYS.PET.PET.UPLOAD_FILE],
     onSuccess: (data: ApiResponse) => {
       queryClient.invalidateQueries({ queryKey: [] });
       enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));
@@ -53,7 +53,7 @@ export const useAddPet = ({ onSuccess }: { onSuccess?: (data: any) => void }) =>
 
   const { mutate, isPending, ...otherProps } = useMutation({
     mutationFn: petAxios.addPet,
-    mutationKey: [QUERY_KEYS.PET.ADD_PET],
+    mutationKey: [QUERY_KEYS.PET.PET.ADD_PET],
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: [] });
       enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));
@@ -74,7 +74,7 @@ export const useUpdatePet = ({ onSuccess }: { onSuccess?: (data: any) => void })
 
   const { mutate, isPending, ...otherProps } = useMutation({
     mutationFn: petAxios.updatePet,
-    mutationKey: [QUERY_KEYS.PET.UPDATE_PET],
+    mutationKey: [QUERY_KEYS.PET.PET.UPDATE_PET],
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: [] });
       enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));
@@ -97,7 +97,7 @@ export const useFindPetsByStatus = (
   isEnabled: boolean,
 ) =>
   useQuery({
-    queryKey: [QUERY_KEYS.PET.FIND_PETS_BY_STATUS, query, params],
+    queryKey: [QUERY_KEYS.PET.PET.FIND_PETS_BY_STATUS, query, params],
     queryFn: () => petAxios.findPetsByStatus(query, params),
     enabled: isEnabled,
   });
@@ -111,14 +111,14 @@ export const useFindPetsByTags = (
   isEnabled: boolean,
 ) =>
   useQuery({
-    queryKey: [QUERY_KEYS.PET.FIND_PETS_BY_TAGS, query, params],
+    queryKey: [QUERY_KEYS.PET.PET.FIND_PETS_BY_TAGS, query, params],
     queryFn: () => petAxios.findPetsByTags(query, params),
     enabled: isEnabled,
   });
 
 export const useGetPetById = (petId: number, params: RequestParams = {}, isEnabled: boolean) =>
   useQuery({
-    queryKey: [QUERY_KEYS.PET.GET_PET_BY_ID, petId, params],
+    queryKey: [QUERY_KEYS.PET.PET.GET_PET_BY_ID, petId, params],
     queryFn: () => petAxios.getPetById(petId, params),
     enabled: isEnabled,
   });
@@ -130,7 +130,7 @@ export const useUpdatePetWithForm = ({ onSuccess }: { onSuccess?: (data: any) =>
 
   const { mutate, isPending, ...otherProps } = useMutation({
     mutationFn: petAxios.updatePetWithForm,
-    mutationKey: [QUERY_KEYS.PET.UPDATE_PET_WITH_FORM],
+    mutationKey: [QUERY_KEYS.PET.PET.UPDATE_PET_WITH_FORM],
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: [] });
       enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));
@@ -151,7 +151,7 @@ export const useDeletePet = ({ onSuccess }: { onSuccess?: (data: any) => void })
 
   const { mutate, isPending, ...otherProps } = useMutation({
     mutationFn: petAxios.deletePet,
-    mutationKey: [QUERY_KEYS.PET.DELETE_PET],
+    mutationKey: [QUERY_KEYS.PET.PET.DELETE_PET],
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: [] });
       enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));

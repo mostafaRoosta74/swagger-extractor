@@ -2,6 +2,7 @@
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
 import {
+  camelToStackCase,
   cleanUpFiles,
   copyDirectory,
   createDirectory,
@@ -128,7 +129,7 @@ console.log(`[3/${totalStep}]:Files created successfully in ./${outputDir}`);
 
 if (withQueryClient) {
   await execCommand2(
-    `swagger-typescript-api -p ${url} -o ./tempReactQuery --modular --axios --single-http-client -t ${relativePath}/../openapi-template/my-templates`,
+    `swagger-typescript-api -p ${url} -o ./tempReactQuery --modular --axios --single-http-client -t ${relativePath}/../openapi-template/my-templates --api-class-name ${folderName}`,
   );
   let constants = (await readFile(`tempReactQuery/http-client.ts`)) || "";
 
@@ -147,10 +148,22 @@ if (withQueryClient) {
       `./${outputDir}axios/constants.ts`,
       constants.split("export const QUERY_KEYS = ")[0] +
         "export const QUERY_KEYS = " +
-        JSON.stringify(deepMerge(newJson, oldJson)),
+        JSON.stringify(
+          deepMerge({ [camelToStackCase(folderName)]: newJson }, oldJson),
+        ),
     );
   } else {
-    createFileWithJson(`./${outputDir}axios/constants.ts`, constants);
+    constants = constants.replace(";", "");
+    const newJson = JSON.parse(
+      fixJSONString(constants.split("export const QUERY_KEYS = ")[1]) || "",
+    );
+    createFileWithJson(
+      `./${outputDir}axios/constants.ts`,
+      constants.split("export const QUERY_KEYS = ")[0] +
+        "export const QUERY_KEYS = " +
+        JSON.stringify({ [camelToStackCase(folderName)]: newJson }),
+    );
+    //createFileWithJson(`./${outputDir}axios/constants.ts`, constants);
   }
 
   await createDirectory(`./${outputDir}axios/reactQuery/${folderName}`);

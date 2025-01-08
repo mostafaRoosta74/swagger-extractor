@@ -76,7 +76,7 @@ Same as `--reactQuery`
 
 
 
-## Output directory structure (without --withReactQuery)
+## Output directory structure (without --reactQuery)
 ##### after run: 
 `npx swagger-extractor --url="https://petstore.swagger.io/v2/swagger.json" --name="pet"`
 ##### create folder and file like this:
@@ -98,7 +98,7 @@ axios
 │       │   user.ts
 ```
 
-## Output directory structure (with --withReactQuery)
+## Output directory structure (with --reactQuery)
 ##### after run:
 `npx swagger-extractor --url="https://petstore.swagger.io/v2/swagger.json" --name="pet" --reactQuery`
 ##### create folder and file like this:

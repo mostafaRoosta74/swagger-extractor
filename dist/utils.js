@@ -206,3 +206,11 @@ export const isExist = (path) => new Promise((resolve, reject) => {
         resolve(true);
     });
 });
+export function camelToStackCase(str) {
+    let data = str.replace(/([a-z])([A-Z])/g, "$1 $2").toLowerCase();
+    data = data
+        .split(" ")
+        .map((i) => i.toUpperCase())
+        .join("_");
+    return data;
+}

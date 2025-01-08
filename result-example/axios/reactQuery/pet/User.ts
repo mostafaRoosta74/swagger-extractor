@@ -31,7 +31,7 @@ export const useCreateUsersWithListInput = ({ onSuccess }: { onSuccess?: (data: 
 
   const { mutate, isPending, ...otherProps } = useMutation({
     mutationFn: petAxios.createUsersWithListInput,
-    mutationKey: [QUERY_KEYS.USER.CREATE_USERS_WITH_LIST_INPUT],
+    mutationKey: [QUERY_KEYS.PET.USER.CREATE_USERS_WITH_LIST_INPUT],
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: [] });
       enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));
@@ -47,7 +47,7 @@ export const useCreateUsersWithListInput = ({ onSuccess }: { onSuccess?: (data: 
 
 export const useGetUserByName = (username: string, params: RequestParams = {}, isEnabled: boolean) =>
   useQuery({
-    queryKey: [QUERY_KEYS.USER.GET_USER_BY_NAME, username, params],
+    queryKey: [QUERY_KEYS.PET.USER.GET_USER_BY_NAME, username, params],
     queryFn: () => petAxios.getUserByName(username, params),
     enabled: isEnabled,
   });
@@ -59,7 +59,7 @@ export const useUpdateUser = ({ onSuccess }: { onSuccess?: (data: any) => void }
 
   const { mutate, isPending, ...otherProps } = useMutation({
     mutationFn: petAxios.updateUser,
-    mutationKey: [QUERY_KEYS.USER.UPDATE_USER],
+    mutationKey: [QUERY_KEYS.PET.USER.UPDATE_USER],
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: [] });
       enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));
@@ -80,7 +80,7 @@ export const useDeleteUser = ({ onSuccess }: { onSuccess?: (data: any) => void }
 
   const { mutate, isPending, ...otherProps } = useMutation({
     mutationFn: petAxios.deleteUser,
-    mutationKey: [QUERY_KEYS.USER.DELETE_USER],
+    mutationKey: [QUERY_KEYS.PET.USER.DELETE_USER],
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: [] });
       enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));
@@ -105,14 +105,14 @@ export const useLoginUser = (
   isEnabled: boolean,
 ) =>
   useQuery({
-    queryKey: [QUERY_KEYS.USER.LOGIN_USER, query, params],
+    queryKey: [QUERY_KEYS.PET.USER.LOGIN_USER, query, params],
     queryFn: () => petAxios.loginUser(query, params),
     enabled: isEnabled,
   });
 
 export const useLogoutUser = (params: RequestParams = {}, isEnabled: boolean) =>
   useQuery({
-    queryKey: [QUERY_KEYS.USER.LOGOUT_USER, params],
+    queryKey: [QUERY_KEYS.PET.USER.LOGOUT_USER, params],
     queryFn: () => petAxios.logoutUser(params),
     enabled: isEnabled,
   });
@@ -124,7 +124,7 @@ export const useCreateUsersWithArrayInput = ({ onSuccess }: { onSuccess?: (data:
 
   const { mutate, isPending, ...otherProps } = useMutation({
     mutationFn: petAxios.createUsersWithArrayInput,
-    mutationKey: [QUERY_KEYS.USER.CREATE_USERS_WITH_ARRAY_INPUT],
+    mutationKey: [QUERY_KEYS.PET.USER.CREATE_USERS_WITH_ARRAY_INPUT],
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: [] });
       enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));
@@ -145,7 +145,7 @@ export const useCreateUser = ({ onSuccess }: { onSuccess?: (data: any) => void }
 
   const { mutate, isPending, ...otherProps } = useMutation({
     mutationFn: petAxios.createUser,
-    mutationKey: [QUERY_KEYS.USER.CREATE_USER],
+    mutationKey: [QUERY_KEYS.PET.USER.CREATE_USER],
     onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: [] });
       enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import yargs from "yargs/yargs";
 import { hideBin } from "yargs/helpers";
-import { cleanUpFiles, copyDirectory, createDirectory, createFileWithJson, deepMerge, execCommand, execCommand2, fixJSONString, isExist, readDirectory, readFile, } from "./utils.js";
+import { camelToStackCase, cleanUpFiles, copyDirectory, createDirectory, createFileWithJson, deepMerge, execCommand, execCommand2, fixJSONString, isExist, readDirectory, readFile, } from "./utils.js";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 // variables
@@ -82,7 +82,7 @@ createFileWithJson(`./${outputDir}axios/${folderName}Axios.ts`, mainAxiosData ||
 await execCommand(`rimraf --glob tempAxios`);
 console.log(`[3/${totalStep}]:Files created successfully in ./${outputDir}`);
 if (withQueryClient) {
-    await execCommand2(`swagger-typescript-api -p ${url} -o ./tempReactQuery --modular --axios --single-http-client -t ${relativePath}/../openapi-template/my-templates`);
+    await execCommand2(`swagger-typescript-api -p ${url} -o ./tempReactQuery --modular --axios --single-http-client -t ${relativePath}/../openapi-template/my-templates --api-class-name ${folderName}`);
     let constants = (await readFile(`tempReactQuery/http-client.ts`)) || "";
     if (await isExist(`./${outputDir}axios/constants.ts`)) {
         constants = constants.replace(";", "");
@@ -92,10 +92,15 @@ if (withQueryClient) {
         const oldJson = JSON.parse(fixJSONString(oldJsonData.split("export const QUERY_KEYS = ")[1]) || "");
         createFileWithJson(`./${outputDir}axios/constants.ts`, constants.split("export const QUERY_KEYS = ")[0] +
             "export const QUERY_KEYS = " +
-            JSON.stringify(deepMerge(newJson, oldJson)));
+            JSON.stringify(deepMerge({ [camelToStackCase(folderName)]: newJson }, oldJson)));
     }
     else {
-        createFileWithJson(`./${outputDir}axios/constants.ts`, constants);
+        constants = constants.replace(";", "");
+        const newJson = JSON.parse(fixJSONString(constants.split("export const QUERY_KEYS = ")[1]) || "");
+        createFileWithJson(`./${outputDir}axios/constants.ts`, constants.split("export const QUERY_KEYS = ")[0] +
+            "export const QUERY_KEYS = " +
+            JSON.stringify({ [camelToStackCase(folderName)]: newJson }));
+        //createFileWithJson(`./${outputDir}axios/constants.ts`, constants);
     }
     await createDirectory(`./${outputDir}axios/reactQuery/${folderName}`);
     const tempReactQueryDirectoryArray = await readDirectory("tempReactQuery");
