@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.3](https://github.com/mostafaRoosta74/swagger-extractor/compare/v1.1.2...v1.1.3) (2025-01-08)
+
+
+### Bug Fixes
+
+* keys go nested based on name ([214fa52](https://github.com/mostafaRoosta74/swagger-extractor/commit/214fa5296199d8c3813658f39f7e71e49d791fa7))
+
 ## [1.1.2](https://github.com/mostafaRoosta74/swagger-extractor/compare/v1.1.1...v1.1.2) (2025-01-07)
 
 
