@@ -19,9 +19,7 @@ import { <%~ dataContracts.join(", ") %> } from "./<%~ config.fileNames.dataCont
 <% } %>
 
 export const onError = (t: TFunction<"translation", undefined>,enqueueSnackbar: EnqueueSnackbar)=>(error: any) => {
-    enqueueSnackbar(t("Error"), {
-        variant: "error",
-    });
+    enqueueSnackbar(t("Error"), { variant: "error" });
 }
 
 
