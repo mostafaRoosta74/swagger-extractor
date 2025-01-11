@@ -1,6 +1,12 @@
 # swagger-extractor
 
-Extract axios functions and DTOs from swagger json link
+Extract 
+
+- axios functions 
+- TypeScript types
+- ReactQuery hooks
+
+from Swagger json link
 
 ![NPM Downloads](https://img.shields.io/npm/dw/swagger-extractor)
 ![GitHub License](https://img.shields.io/github/license/mostafaRoosta74/swagger-extractor)
@@ -96,6 +102,42 @@ axios
 │       │   update-pet-with-form-request.ts
 │       │   upload-file-request.ts
 │       │   user.ts
+```
+# With react-query
+
+#### after run command these library are needed (*beside Axios, Typescript*)
+
+| Library                 | Usage                                                      |
+|-------------------------|------------------------------------------------------------|
+| @tanstack/react-query   | Main library of react-query                                |
+| i18next , react-i18next | Library for translation (use for success message template) |
+| notistack               | Library show message (use for success message template)    |
+
+#### install
+
+``` 
+npm i @tanstack/react-query i18next  react-i18next notistack
+```
+
+#### config success message
+change name variable and add "CREATED_SUCCESSFULLY" key to i18n
+
+```ts
+/* CODES */
+  enqueueSnackbar(t("CREATED_SUCCESSFULLY", { name: t("") }));
+/* CODES */
+```
+#### config error message
+change function add your message based on response
+
+ ```ts
+/* CODES */
+  export const onError = (t: TFunction<"translation", undefined>, enqueueSnackbar: EnqueueSnackbar) => (error: any) => {
+    enqueueSnackbar(t("Error"), {
+      variant: "error",
+    });
+  };
+/* CODES */
 ```
 
 ## Output directory structure (with --reactQuery)

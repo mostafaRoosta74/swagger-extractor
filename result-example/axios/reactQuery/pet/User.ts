@@ -19,7 +19,7 @@ import { useTranslation } from "react-i18next";
 import { RequestParams } from "../../configAxios";
 
 export const onError = (t: TFunction<"translation", undefined>, enqueueSnackbar: EnqueueSnackbar) => (error: any) => {
-  enqueueSnackbar(t(error?.response?.data?.message), {
+  enqueueSnackbar(t("Error"), {
     variant: "error",
   });
 };
