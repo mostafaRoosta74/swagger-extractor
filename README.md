@@ -80,7 +80,31 @@ Same as `--reactQuery`
 </tbody>
 </table>
 
+## Usage after run NPX
 
+#### 1. add your base url for your API
+
+axios/configAxios.ts:
+
+```ts
+/* code */
+export const axiosInstance = axios.create({
+  baseURL: "BASE_URL",
+});
+/* code */
+```
+
+#### 2. use this function to set token to axios
+
+axios/configAxios.ts:
+
+```ts
+/* code */
+export const fixAxiosToken = (token: string) => {
+  fixAxiosHeader({ Authorization: `Bearer ${token}` });
+};
+/* code */
+```
 
 ## Output directory structure (without --reactQuery)
 ##### after run: 
@@ -104,6 +128,13 @@ axios
 │       │   user.ts
 ```
 # With react-query
+## Usage
+add --reactQuery parameter at the end
+
+#### example:
+```
+npx swagger-extractor --url="https://petstore.swagger.io/v2/swagger.json" --name="pet" --reactQuery
+```
 
 #### after run command these library are needed (*beside Axios, Typescript*)
 
@@ -168,4 +199,6 @@ axios
 │       │   upload-file-request.ts
 │       │   user.ts
 ```
+## how this library work?
 
+I use [openapi-generator-cli](https://openapi-generator.tech/docs/usage/) and [swagger-typescript-api](https://github.com/acacode/swagger-typescript-api) and some [node.js](https://nodejs.org/en) code to create this library

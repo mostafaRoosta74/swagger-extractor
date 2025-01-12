@@ -7,6 +7,10 @@
     "create-dist": "npx tsc --watch",
     "test": "npx . --url=\"https://petstore.swagger.io/v2/swagger.json\" --name=\"pet\" --output=\"result-example\" --reactQuery"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mostafaRoosta74/swagger-extractor.git"
+  },
   "keywords": [
     "auto-generate-axios",
     "auto-generate-react-query",
